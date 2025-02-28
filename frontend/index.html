@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Price Comparison</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Real-Time Price Comparison</h1>
+    <input type="text" id="product" placeholder="Enter product name">
+    <button onclick="searchProduct()">Search</button>
+    
+    <h2>Results</h2>
+    <div id="results"></div>
+    
+    <h2>Price History</h2>
+    <canvas id="priceChart"></canvas>
+    
+    <script src="script.js"></script>
+</body>
+</html>
