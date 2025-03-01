@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonifye
 from scraper import scrape_amazon, scrape_flipkart, scrape_ebay, get_price_history
 import pandas as pd
 
