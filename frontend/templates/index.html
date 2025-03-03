@@ -4,20 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Price Comparison</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <h1>Real-Time Price Comparison</h1>
-    <input type="text" id="product" placeholder="Enter product name">
-    <button onclick="searchProduct()">Search</button>
-    
-    <h2>Results</h2>
+    <form id="searchForm">
+        <input type="text" id="product_name" placeholder="Enter product name" required>
+        <button type="submit">Search</button>
+    </form>
     <div id="results"></div>
-    
-    <h2>Price History</h2>
-    <canvas id="priceChart"></canvas>
-    
-    <script src="script.js"></script>
+    <canvas id="priceChart" width="400" height="200"></canvas>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
