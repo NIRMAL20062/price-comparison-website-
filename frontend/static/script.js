@@ -1,42 +1,56 @@
-async function searchProduct() {
-    const product = document.getElementById("product").value;
-    if (!product) {
-        alert("Please enter a product name");
-        return;
-    }
-
-    // Fetch search results
-    const response = await fetch(`http://127.0.0.1:5000/search?product=${product}`);
-    const results = await response.json();
-    displayResults(results);
-
-    // Fetch price history
-    const historyResponse = await fetch(`http://127.0.0.1:5000/price-history?product=${product}`);
-    const history = await historyResponse.json();
-    displayPriceHistory(history);
-}
+document.getElementById("searchForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const productName = document.getElementById("product_name").value;
+    fetch("/search", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: `product_name=${encodeURIComponent(productName)}`,
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            displayResults(data);
+            updateChart(data);
+        });
+});
 
 function displayResults(results) {
     const resultsDiv = document.getElementById("results");
-    resultsDiv.innerHTML = results.map(result => `
-        <div>
-            <strong>${result.Website}</strong>: ${result.Product} - ${result.Price}
-        </div>
-    `).join("");
+    resultsDiv.innerHTML = "";
+    results.forEach((item) => {
+        const itemDiv = document.createElement("div");
+        itemDiv.textContent = `${item.title} - ${item.price} (${item.source})`;
+        resultsDiv.appendChild(itemDiv);
+    });
 }
 
-function displayPriceHistory(history) {
+let chart;
+function updateChart(results) {
     const ctx = document.getElementById("priceChart").getContext("2d");
-    new Chart(ctx, {
-        type: "line",
+    if (chart) {
+        chart.destroy();
+    }
+    chart = new Chart(ctx, {
+        type: "bar",
         data: {
-            labels: history.map(h => h.Date),
-            datasets: [{
-                label: "Price History",
-                data: history.map(h => h.Price),
-                borderColor: "blue",
-                fill: false
-            }]
-        }
+            labels: results.map((item) => item.source),
+            datasets: [
+                {
+                    label: "Price",
+                    data: results.map((item) => item.price),
+                    backgroundColor: "rgba(75, 192, 192, 0.2)",
+                    borderColor: "rgba(75, 192, 192, 1)",
+                    borderWidth: 1,
+                },
+            ],
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true,
+                },
+            },
+        },
     });
 }
