@@ -1,6 +1,5 @@
 import requests
 from bs4 import BeautifulSoup
-import pandas as pd
 
 def scrape_amazon(product_name):
     url = f"https://www.amazon.in/s?k={product_name.replace(' ', '+')}"
