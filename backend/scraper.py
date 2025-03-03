@@ -3,21 +3,23 @@ from bs4 import BeautifulSoup
 import pandas as pd
 
 def scrape_amazon(product_name):
-    url = f"https://www.amazon.com/s?k={product_name.replace(' ', '+')}"
+    url = f"https://www.amazon.in/s?k={product_name.replace(' ', '+')}"
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
     }
     response = requests.get(url, headers=headers)
-    soup = BeautifulSoup(response.text, "html.parser")
+    soup = BeautifulSoup(response.content, "html.parser")
     items = soup.find_all("div", {"data-component-type": "s-search-result"})
     
     results = []
     for item in items:
-        name = item.find("span", class_="a-text-normal").text.strip()
-        price = item.find("span", class_="a-offscreen")
-        price = price.text.strip() if price else "N/A"
-        results.append({"Website": "Amazon", "Product": name, "Price": price})
-    
+        title = item.find("h2").text.strip()
+        price = item.find("span", {"class": "a-price-whole"})
+        if price:
+            price = price.text.strip().replace(",", "")
+        else:
+            price = "N/A"
+        results.append({"title": title, "price": price, "source": "Amazon"})
     return results
 
 def scrape_flipkart(product_name):
@@ -26,16 +28,20 @@ def scrape_flipkart(product_name):
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
     }
     response = requests.get(url, headers=headers)
-    soup = BeautifulSoup(response.text, "html.parser")
+    soup = BeautifulSoup(response.content, "html.parser")
     items = soup.find_all("div", {"class": "_1AtVbE"})
     
     results = []
     for item in items:
-        name = item.find("div", {"class": "_4rR01T"})
+        title = item.find("div", {"class": "_4rR01T"})
+        if title:
+            title = title.text.strip()
         price = item.find("div", {"class": "_30jeq3"})
-        if name and price:
-            results.append({"Website": "Flipkart", "Product": name.text.strip(), "Price": price.text.strip()})
-    
+        if price:
+            price = price.text.strip().replace("₹", "").replace(",", "")
+        else:
+            price = "N/A"
+        results.append({"title": title, "price": price, "source": "Flipkart"})
     return results
 
 def scrape_ebay(product_name):
@@ -44,22 +50,25 @@ def scrape_ebay(product_name):
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
     }
     response = requests.get(url, headers=headers)
-    soup = BeautifulSoup(response.text, "html.parser")
+    soup = BeautifulSoup(response.content, "html.parser")
     items = soup.find_all("div", {"class": "s-item__info"})
     
     results = []
     for item in items:
-        name = item.find("h3", {"class": "s-item__title"})
+        title = item.find("h3", {"class": "s-item__title"})
+        if title:
+            title = title.text.strip()
         price = item.find("span", {"class": "s-item__price"})
-        if name and price:
-            results.append({"Website": "eBay", "Product": name.text.strip(), "Price": price.text.strip()})
-    
+        if price:
+            price = price.text.strip().replace("$", "").replace(",", "")
+        else:
+            price = "N/A"
+        results.append({"title": title, "price": price, "source": "eBay"})
     return results
 
-def get_price_history(product_name):
-    # Simulate price history (replace with actual scraping logic)
-    data = {
-        "Date": ["2023-10-01", "2023-10-02", "2023-10-03"],
-        "Price": [100, 95, 90]
-    }
-    return pd.DataFrame(data)
+def scrape_all(product_name):
+    amazon_results = scrape_amazon(product_name)
+    flipkart_results = scrape_flipkart(product_name)
+    ebay_results = scrape_ebay(product_name)
+    all_results = amazon_results + flipkart_results + ebay_results
+    return all_results
