@@ -1,10 +1,11 @@
 from flask import Flask, render_template, request, jsonify
 from scraper import scrape_all
+
 import os
 
 app = Flask(__name__)
 
-@app.route("/")
+@app.route("/", methods= ["POST", "GET"])
 def home():
     return render_template("index.html")
 
